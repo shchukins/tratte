@@ -1,0 +1,1 @@
+"""Tratte receipt tracker."""

@@ -1,0 +1,86 @@
+name: tratte
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tratte
+      POSTGRES_USER: tratte
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tratte -d tratte"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build: .
+    env_file: .env
+    environment: &app_environment
+      DATABASE_URL: postgresql+psycopg://tratte:${POSTGRES_PASSWORD}@db:5432/tratte
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+
+  api:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment: *app_environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+
+  bot:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment: *app_environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["app", "bot"]
+
+  scheduler:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment: *app_environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: ["app", "scheduler"]
+
+  gmail-auth:
+    profiles: ["setup"]
+    build: .
+    env_file: .env
+    environment:
+      <<: *app_environment
+      GMAIL_CLIENT_SECRET_FILE: /run/secrets/client_secret.json
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./client_secret.json:/run/secrets/client_secret.json:ro
+    command:
+      - app
+      - gmail-auth
+      - --host
+      - localhost
+      - --bind-address
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --no-open-browser
+
+volumes:
+  postgres_data:
