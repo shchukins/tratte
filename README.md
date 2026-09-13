@@ -81,6 +81,36 @@ docker compose ps
 curl http://127.0.0.1:8000/health
 ```
 
+### Автоматический деплой
+
+Workflow `.github/workflows/ci.yml` проверяет каждый push в `main` с помощью Ruff
+и pytest. После успешной проверки он перемещает ветку `deploy` на проверенный
+коммит. Серверный таймер раз в две минуты запускает `ops/deploy.sh`, который
+получает только эту ветку, применяет fast-forward обновление, запускает миграции,
+пересобирает сервисы и проверяет `/health`.
+
+Пользовательские units устанавливаются на сервере так:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp ops/systemd/tratte-deploy.* ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now tratte-deploy.timer
+```
+
+Чтобы таймер продолжал работать после выхода из SSH, администратор сервера один
+раз включает linger: `sudo loginctl enable-linger shch`.
+
+Состояние и журнал деплоя:
+
+```bash
+systemctl --user status tratte-deploy.timer
+systemctl --user list-timers tratte-deploy.timer
+journalctl --user -u tratte-deploy.service -n 100 --no-pager
+```
+
+Файлы `.env` и `client_secret.json` остаются только на сервере и исключены из Git.
+
 На Linux ограничьте чтение конфигурации: `chmod 600 .env client_secret.json`.
 
 Первичный импорт и ручная синхронизация:

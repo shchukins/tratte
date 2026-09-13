@@ -1,0 +1,12 @@
+[Unit]
+Description=Check for a CI-verified Tratte revision every two minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=2min
+RandomizedDelaySec=15s
+Persistent=true
+Unit=tratte-deploy.service
+
+[Install]
+WantedBy=timers.target

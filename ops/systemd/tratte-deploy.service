@@ -1,0 +1,14 @@
+[Unit]
+Description=Deploy the last CI-verified Tratte revision
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/srv/tratte
+ExecStart=/srv/tratte/ops/deploy.sh
+TimeoutStartSec=30min
+Nice=10
+
+[Install]
+WantedBy=default.target
