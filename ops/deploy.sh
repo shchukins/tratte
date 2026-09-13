@@ -44,7 +44,7 @@ log "Deploying ${current_revision:0:7} -> ${target_revision:0:7}"
 git merge --ff-only "${DEPLOY_REF}"
 
 docker compose build migrate api bot scheduler
-docker compose run --rm migrate
+docker compose run --rm --no-deps migrate
 docker compose up -d --no-deps api bot scheduler
 
 for attempt in {1..12}; do
