@@ -6,27 +6,48 @@ from functools import wraps
 
 from sqlalchemy import func, select
 from telegram import Update
+from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from app.config import get_settings
 from app.db import SessionLocal
 from app.models import ProcessingStatus, Receipt, ReceiptItem
-from app.services.reports import money, period_report, receipt_report
+from app.services.reports import (
+    message_chunks,
+    period_report,
+    prices_report,
+    receipt_report,
+    stores_report,
+    top_report,
+)
 from app.services.stats import StatsService
 from app.services.sync import sync_receipts
 
 Handler = Callable[[Update, ContextTypes.DEFAULT_TYPE], Awaitable[None]]
 
-HELP = """Команды:
+HELP = """👋 <b>Tratte · ваши покупки</b>
+
+<b>Расходы</b>
 /today — расходы сегодня
 /week — текущая неделя
 /month — текущий месяц
+
+<b>Покупки и магазины</b>
 /top — топ товаров
 /stores — расходы и средний чек по магазинам
-/prices <запрос> — история цены
+/prices название — история цены
 /last — последний чек
+
+<b>Управление</b>
 /sync — синхронизировать Gmail
 /help — эта справка"""
+
+
+async def reply_html(update: Update, text: str) -> None:
+    for chunk in message_chunks(text):
+        await update.effective_message.reply_text(
+            chunk, parse_mode=ParseMode.HTML, disable_web_page_preview=True
+        )
 
 
 def allowed(handler: Handler) -> Handler:
@@ -44,7 +65,7 @@ def allowed(handler: Handler) -> Handler:
 
 @allowed
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.effective_message.reply_text(HELP)
+    await reply_html(update, HELP)
 
 
 def period_handler(period: str, title: str) -> Handler:
@@ -53,7 +74,7 @@ def period_handler(period: str, title: str) -> Handler:
         with SessionLocal() as session:
             stats = StatsService(session, get_settings().default_timezone).period(period)
             text = period_report(stats, title)
-        await update.effective_message.reply_text(text)
+        await reply_html(update, text)
 
     return handler
 
@@ -62,30 +83,35 @@ def period_handler(period: str, title: str) -> Handler:
 async def last_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     with SessionLocal() as session:
         text = receipt_report(StatsService(session).last_receipt())
-    await update.effective_message.reply_text(text)
+    await reply_html(update, text)
 
 
 @allowed
 async def prices_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = " ".join(context.args).strip()
     if not query:
-        await update.effective_message.reply_text("Использование: /prices <название товара>")
+        await reply_html(
+            update,
+            "🏷 <b>История цены</b>\n\nВведите название товара после команды.\n"
+            "Например: <code>/prices молоко</code>",
+        )
         return
     with SessionLocal() as session:
         rows = StatsService(session).price_history(query)
-    text = "\n".join(
-        [f"История цены: {query}"]
-        + [f"• {date_:%d.%m.%Y} — {name}: {money(price)}" for date_, name, price in rows]
-    )
-    await update.effective_message.reply_text(text if rows else "Ничего не найдено.")
+    await reply_html(update, prices_report(query, rows))
 
 
 @allowed
 async def sync_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.effective_message.reply_text("Запускаю синхронизацию…")
+    await reply_html(update, "🔄 <b>Синхронизация Gmail</b>\n\nПроверяю новые чеки…")
     run = await asyncio.to_thread(sync_receipts)
-    await update.effective_message.reply_text(
-        f"Готово: разобрано {run.parsed}, пропущено {run.skipped}, ошибок {run.failed}."
+    title = "⚠️ Синхронизация завершена с ошибками" if run.failed else "✅ Синхронизация завершена"
+    await reply_html(
+        update,
+        f"<b>{title}</b>\n\n"
+        f"• Разобрано: <b>{run.parsed}</b>\n"
+        f"• Пропущено: <b>{run.skipped}</b>\n"
+        f"• Ошибок: <b>{run.failed}</b>",
     )
 
 
@@ -108,9 +134,7 @@ async def top_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> Non
             .order_by(func.sum(ReceiptItem.quantity).desc())
             .limit(10)
         ).all()
-    lines = ["Топ по расходам:"] + [f"• {name}: {money(value)}" for name, value in spend]
-    lines += ["", "Топ по количеству:"] + [f"• {name}: {value}" for name, value in quantity]
-    await update.effective_message.reply_text("\n".join(lines))
+    await reply_html(update, top_report(spend, quantity))
 
 
 @allowed
@@ -127,12 +151,7 @@ async def stores_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             .group_by(Receipt.store)
             .order_by(func.sum(Receipt.total).desc())
         ).all()
-    lines = ["Расходы по магазинам:"]
-    lines += [
-        f"• {store or 'Неизвестно'}: {money(total)}, чеков {count}, средний {money(avg)}"
-        for store, total, count, avg in rows
-    ]
-    await update.effective_message.reply_text("\n".join(lines))
+    await reply_html(update, stores_report(rows))
 
 
 def build_application() -> Application:
