@@ -1,4 +1,6 @@
+from datetime import datetime
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -18,6 +20,24 @@ def test_beeline_parser_extracts_weight_fiscal_data_and_ignores_ad(html):
     assert len(result.items) == 2
     assert result.items[1].quantity == Decimal("0.740")
     assert all("реклам" not in item.original_name.casefold() for item in result.items)
+
+
+def test_receipt_timestamp_wins_over_email_subject_and_unrelated_body_date(html):
+    receipt_html = html("beeline.html").replace(
+        "<div class=\"promo\">", "<p>Дата формирования: 19.09.2026</p><div class=\"promo\">"
+    )
+    result = ParserRegistry().parse(
+        EmailMessage(
+            "b2",
+            "ofdreceipt@beeline.ru",
+            "Чек доставлен 19.09.2026 23:59",
+            receipt_html,
+        )
+    )
+
+    assert result.purchased_at == datetime(
+        2026, 8, 28, 18, 42, tzinfo=ZoneInfo("Europe/Moscow")
+    )
 
 
 def test_first_ofd_parser(html):

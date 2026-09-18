@@ -130,9 +130,19 @@ class StructuredHtmlParser(ReceiptParser):
 
     @staticmethod
     def _date(text: str) -> datetime | None:
-        match = re.search(r"(\d{2}\.\d{2}\.\d{4})(?:\s+[г.]*)?\s*(\d{2}:\d{2}(?::\d{2})?)?", text)
-        if not match:
+        matches = list(
+            re.finditer(
+                r"(\d{2}\.\d{2}\.\d{4})(?:\s+г\.?)?\s*(?:\|\s*)?"
+                r"(\d{2}:\d{2}(?::\d{2})?)?",
+                text,
+            )
+        )
+        if not matches:
             return None
+        # A receipt may also contain dates without a time (for example, in a
+        # footer). Prefer the first complete timestamp so that analytics use
+        # the actual purchase time rather than an unrelated date at midnight.
+        match = next((candidate for candidate in matches if candidate.group(2)), matches[0])
         value = f"{match.group(1)} {match.group(2) or '00:00'}"
         fmt = "%d.%m.%Y %H:%M:%S" if value.count(":") == 2 else "%d.%m.%Y %H:%M"
         return datetime.strptime(value, fmt).replace(
