@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Iterable
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -96,7 +97,7 @@ class ReceiptImporter:
             logger.info("Чек уже импортирован: Gmail message id=%s", message.message_id)
             return ProcessingStatus.SKIPPED
 
-    def import_messages(self, messages: list[EmailMessage]) -> SyncRun:
+    def import_messages(self, messages: Iterable[EmailMessage]) -> SyncRun:
         run = SyncRun()
         self.session.add(run)
         self.session.commit()
@@ -114,6 +115,7 @@ class ReceiptImporter:
         except Exception as exc:
             logger.exception("Синхронизация завершилась с ошибкой")
             run.status = "failed"
+            run.failed += 1
             run.error = str(exc)[:2000]
         finally:
             run.finished_at = utc_now()

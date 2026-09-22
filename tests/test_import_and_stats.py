@@ -53,6 +53,20 @@ def test_failed_message_is_recorded(session):
     assert receipt.parse_error
 
 
+def test_sync_keeps_imported_messages_when_later_fetch_fails(session, html):
+    def messages():
+        yield message(html)
+        raise RuntimeError("temporary Gmail failure")
+
+    run = ReceiptImporter(session).import_messages(messages())
+
+    assert run.status == "failed"
+    assert run.messages_seen == 1
+    assert run.parsed == 1
+    assert run.failed == 1
+    assert session.scalar(select(func.count(Receipt.id))) == 1
+
+
 def test_manual_alias_updates_existing_items(session, html):
     ReceiptImporter(session).import_message(message(html))
     ProductNormalizer(session).set_alias(

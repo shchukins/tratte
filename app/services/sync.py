@@ -18,7 +18,8 @@ def sync_receipts(since: date | None = None) -> SyncRun:
         integration = GmailIntegrationService(
             session, settings, FernetSecretStorage(settings.token_encryption_key)
         )
-        messages = integration.client().fetch_messages(since)
+        existing_ids = set(session.scalars(select(Receipt.gmail_message_id)))
+        messages = integration.client().iter_messages(since, exclude_ids=existing_ids)
         return ReceiptImporter(session).import_messages(messages)
 
 

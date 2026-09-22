@@ -2,6 +2,9 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
+import time
+from collections.abc import Iterator
 from datetime import date
 from email.utils import parseaddr
 from typing import Any
@@ -9,6 +12,7 @@ from typing import Any
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.errors import HttpError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -18,6 +22,11 @@ from app.schemas import EmailMessage
 from app.services.secrets import SecretStorage
 
 GMAIL_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
+logger = logging.getLogger(__name__)
+
+
+class GmailRequestError(RuntimeError):
+    pass
 
 
 def _decode(data: str) -> str:
@@ -48,26 +57,74 @@ class GmailClient:
             parts.append(f"after:{since.strftime('%Y/%m/%d')}")
         return " ".join(parts)
 
-    def fetch_messages(self, since: date | None = None) -> list[EmailMessage]:
+    @staticmethod
+    def _is_retryable(error: HttpError) -> bool:
+        status = getattr(error.resp, "status", None)
+        content = error.content.decode("utf-8", errors="replace")
+        return (
+            status == 429
+            or (status is not None and status >= 500)
+            or (
+                status == 403
+                and any(
+                    reason in content
+                    for reason in ("rateLimitExceeded", "userRateLimitExceeded")
+                )
+            )
+        )
+
+    def _execute(self, request: Any) -> dict[str, Any]:
+        delays = (1, 2, 4)
+        for attempt in range(len(delays) + 1):
+            try:
+                return request.execute()
+            except HttpError as exc:
+                retryable = self._is_retryable(exc)
+                if not retryable or attempt == len(delays):
+                    status = getattr(exc.resp, "status", "unknown")
+                    message = (
+                        "Gmail API quota temporarily exceeded"
+                        if retryable
+                        else f"Gmail API request failed with HTTP {status}"
+                    )
+                    raise GmailRequestError(message) from None
+                delay = delays[attempt]
+                logger.warning("Gmail API temporarily unavailable; retrying in %s seconds", delay)
+                time.sleep(delay)
+        raise AssertionError("unreachable")
+
+    def list_message_ids(self, since: date | None = None) -> list[str]:
         ids: list[str] = []
         page_token = None
         while True:
-            response = (
+            request = (
                 self.service.users()
                 .messages()
                 .list(userId="me", q=self.query(since), pageToken=page_token, maxResults=500)
-                .execute()
             )
+            response = self._execute(request)
             ids.extend(row["id"] for row in response.get("messages", []))
             page_token = response.get("nextPageToken")
             if not page_token:
                 break
-        return [message for message_id in ids if (message := self.fetch_message(message_id))]
+        return ids
+
+    def iter_messages(
+        self, since: date | None = None, exclude_ids: set[str] | None = None
+    ) -> Iterator[EmailMessage]:
+        excluded = exclude_ids or set()
+        for message_id in self.list_message_ids(since):
+            if message_id in excluded:
+                continue
+            message = self.fetch_message(message_id)
+            if message:
+                yield message
 
     def fetch_message(self, message_id: str) -> EmailMessage | None:
-        raw = (
-            self.service.users().messages().get(userId="me", id=message_id, format="full").execute()
+        request = (
+            self.service.users().messages().get(userId="me", id=message_id, format="full")
         )
+        raw = self._execute(request)
         headers = {h["name"].lower(): h["value"] for h in raw["payload"].get("headers", [])}
         html = _html_part(raw["payload"])
         if not html:
