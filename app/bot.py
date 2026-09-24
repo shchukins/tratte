@@ -82,7 +82,9 @@ def period_handler(period: str, title: str) -> Handler:
 @allowed
 async def last_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     with SessionLocal() as session:
-        text = receipt_report(StatsService(session).last_receipt())
+        text = receipt_report(
+            StatsService(session).last_receipt(), get_settings().default_timezone
+        )
     await reply_html(update, text)
 
 
@@ -98,7 +100,7 @@ async def prices_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         return
     with SessionLocal() as session:
         rows = StatsService(session).price_history(query)
-    await reply_html(update, prices_report(query, rows))
+    await reply_html(update, prices_report(query, rows, get_settings().default_timezone))
 
 
 @allowed

@@ -4,6 +4,7 @@ from collections.abc import Iterable
 from datetime import datetime, timedelta
 from decimal import Decimal
 from html import escape
+from zoneinfo import ZoneInfo
 
 from app.models import Receipt
 from app.services.stats import PeriodStats
@@ -23,6 +24,10 @@ def label(value: str) -> str:
     if len(text) > 160:
         text = text[:159] + "…"
     return escape(text)
+
+
+def receipt_local_time(value: datetime, timezone: str) -> datetime:
+    return value.astimezone(ZoneInfo(timezone)) if value.tzinfo is not None else value
 
 
 def message_chunks(text: str) -> Iterable[str]:
@@ -92,14 +97,14 @@ def period_report(stats: PeriodStats, title: str) -> str:
     return "\n".join(lines)
 
 
-def receipt_report(receipt: Receipt | None) -> str:
+def receipt_report(receipt: Receipt | None, timezone: str = "Europe/Moscow") -> str:
     lines = ["🧾 <b>Последний чек</b>", ""]
     if receipt is None:
         return "\n".join(lines + ["Разобранных чеков пока нет."])
     lines.extend(
         [
             f"<b>{label(receipt.store or receipt.seller or 'Неизвестный магазин')}</b>",
-            f"<i>{receipt.purchased_at:%d.%m.%Y %H:%M}</i>"
+            f"<i>{receipt_local_time(receipt.purchased_at, timezone):%d.%m.%Y %H:%M}</i>"
             if receipt.purchased_at
             else "<i>Дата неизвестна</i>",
             "",
@@ -116,12 +121,18 @@ def receipt_report(receipt: Receipt | None) -> str:
     return "\n".join(lines)
 
 
-def prices_report(query: str, rows: list[tuple[datetime | None, str, Decimal]]) -> str:
+def prices_report(
+    query: str, rows: list[tuple[datetime | None, str, Decimal]], timezone: str = "Europe/Moscow"
+) -> str:
     lines = ["🏷 <b>История цены</b>", f"Поиск: {label(query)}", ""]
     if not rows:
         return "\n".join(lines + ["Ничего не найдено."])
     for date_, name, price in rows:
-        date_text = date_.strftime("%d.%m.%Y") if date_ else "Дата неизвестна"
+        date_text = (
+            receipt_local_time(date_, timezone).strftime("%d.%m.%Y")
+            if date_
+            else "Дата неизвестна"
+        )
         lines.extend([f"<b>{money(price)}</b> · {date_text}", label(name), ""])
     return "\n".join(lines).rstrip()
 

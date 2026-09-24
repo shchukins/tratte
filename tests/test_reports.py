@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
@@ -38,6 +38,14 @@ def test_imported_receipt_totals_survive_html_rendering(session, html):
     assert "01.08.2026 — 31.08.2026" in visible
     assert "молоко 3,2% 930 мл — 2" in visible
     assert "Итого: 290,61 ₽" in assert_valid_html(receipt_report(service.last_receipt()))
+
+
+def test_telegram_receipt_times_use_configured_timezone():
+    purchase_time = datetime(2026, 9, 24, 21, 42, tzinfo=UTC)
+    receipt = Receipt(purchased_at=purchase_time, total=Decimal("100"))
+    assert "25.09.2026 00:42" in receipt_report(receipt)
+    history = prices_report("товар", [(purchase_time, "товар", Decimal("100"))])
+    assert "25.09.2026" in history
 
 
 def test_external_names_are_text_in_every_report(session):
