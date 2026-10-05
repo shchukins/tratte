@@ -4,19 +4,18 @@ import asyncio
 from collections.abc import Awaitable, Callable
 from functools import wraps
 
-from sqlalchemy import func, select
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 from app.config import get_settings
 from app.db import SessionLocal
-from app.models import ProcessingStatus, Receipt, ReceiptItem
 from app.services.reports import (
     message_chunks,
     period_report,
     prices_report,
     receipt_report,
+    status_report,
     stores_report,
     top_report,
 )
@@ -33,12 +32,13 @@ HELP = """👋 <b>Tratte · ваши покупки</b>
 /month — текущий месяц
 
 <b>Покупки и магазины</b>
-/top — топ товаров
-/stores — расходы и средний чек по магазинам
+/top [today|week|month] — топ товаров
+/stores [today|week|month] — расходы по магазинам
 /prices название — история цены
 /last — последний чек
 
 <b>Управление</b>
+/status — состояние импорта чеков
 /sync — синхронизировать Gmail
 /help — эта справка"""
 
@@ -73,7 +73,7 @@ def period_handler(period: str, title: str) -> Handler:
     async def handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         with SessionLocal() as session:
             stats = StatsService(session, get_settings().default_timezone).period(period)
-            text = period_report(stats, title)
+            text = period_report(stats, title, show_categories=period == "month")
         await reply_html(update, text)
 
     return handler
@@ -82,9 +82,7 @@ def period_handler(period: str, title: str) -> Handler:
 @allowed
 async def last_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     with SessionLocal() as session:
-        text = receipt_report(
-            StatsService(session).last_receipt(), get_settings().default_timezone
-        )
+        text = receipt_report(StatsService(session).last_receipt(), get_settings().default_timezone)
     await reply_html(update, text)
 
 
@@ -117,43 +115,47 @@ async def sync_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     )
 
 
+PERIOD_TITLES = {"today": "Сегодня", "week": "Текущая неделя", "month": "Текущий месяц"}
+
+
+def command_period(args: list[str]) -> str | None:
+    if not args:
+        return None
+    if len(args) == 1 and args[0].lower() in PERIOD_TITLES:
+        return args[0].lower()
+    raise ValueError("Укажите период: today, week или month. Без периода — за всё время.")
+
+
 @allowed
 async def top_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    try:
+        period = command_period(context.args)
+    except ValueError as exc:
+        await reply_html(update, str(exc))
+        return
     with SessionLocal() as session:
-        spend = session.execute(
-            select(ReceiptItem.normalized_name, func.sum(ReceiptItem.total))
-            .join(ReceiptItem.receipt)
-            .where(Receipt.status == ProcessingStatus.PARSED)
-            .group_by(ReceiptItem.normalized_name)
-            .order_by(func.sum(ReceiptItem.total).desc())
-            .limit(10)
-        ).all()
-        quantity = session.execute(
-            select(ReceiptItem.normalized_name, func.sum(ReceiptItem.quantity))
-            .join(ReceiptItem.receipt)
-            .where(Receipt.status == ProcessingStatus.PARSED)
-            .group_by(ReceiptItem.normalized_name)
-            .order_by(func.sum(ReceiptItem.quantity).desc())
-            .limit(10)
-        ).all()
-    await reply_html(update, top_report(spend, quantity))
+        spend, quantity = StatsService(session, get_settings().default_timezone).top(period)
+    await reply_html(update, top_report(spend, quantity, PERIOD_TITLES.get(period, "За всё время")))
 
 
 @allowed
 async def stores_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    try:
+        period = command_period(context.args)
+    except ValueError as exc:
+        await reply_html(update, str(exc))
+        return
     with SessionLocal() as session:
-        rows = session.execute(
-            select(
-                Receipt.store,
-                func.sum(Receipt.total),
-                func.count(Receipt.id),
-                func.avg(Receipt.total),
-            )
-            .where(Receipt.status == ProcessingStatus.PARSED)
-            .group_by(Receipt.store)
-            .order_by(func.sum(Receipt.total).desc())
-        ).all()
-    await reply_html(update, stores_report(rows))
+        rows = StatsService(session, get_settings().default_timezone).stores(period)
+    await reply_html(update, stores_report(rows, PERIOD_TITLES.get(period, "За всё время")))
+
+
+@allowed
+async def status_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    with SessionLocal() as session:
+        status = StatsService(session).import_status()
+        text = status_report(status, get_settings().default_timezone)
+    await reply_html(update, text)
 
 
 def build_application() -> Application:
@@ -170,6 +172,7 @@ def build_application() -> Application:
     application.add_handler(CommandHandler("prices", prices_command))
     application.add_handler(CommandHandler("last", last_command))
     application.add_handler(CommandHandler("sync", sync_command))
+    application.add_handler(CommandHandler("status", status_command))
     return application
 
 

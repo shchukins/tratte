@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from html import escape
 from zoneinfo import ZoneInfo
 
 from app.models import Receipt
-from app.services.stats import PeriodStats
+from app.services.stats import ImportStatus, PeriodStats
 
 
 def money(value: Decimal) -> str:
@@ -64,12 +64,12 @@ def ranking(title: str, rows: list[tuple[str, Decimal]], *, by_quantity: bool = 
     )
 
 
-def period_report(stats: PeriodStats, title: str) -> str:
-    last_day = stats.end - timedelta(days=1)
+def period_report(stats: PeriodStats, title: str, *, show_categories: bool = False) -> str:
+    last_day = stats.end
     dates = stats.start.strftime("%d.%m.%Y")
     if last_day.date() != stats.start.date():
         dates += f" — {last_day:%d.%m.%Y}"
-    lines = [f"📊 <b>{label(title)}</b>", f"<i>{dates}</i>", ""]
+    lines = [f"📊 <b>{label(title)}</b>", f"<i>{dates} · до {stats.end:%H:%M}</i>", ""]
     if not stats.receipt_count:
         lines.append("За этот период расходов пока нет.")
         return "\n".join(lines)
@@ -82,11 +82,30 @@ def period_report(stats: PeriodStats, title: str) -> str:
     )
     if stats.previous_total is not None:
         if stats.previous_total:
-            change = (stats.total - stats.previous_total) / stats.previous_total * 100
+            change = (stats.comparison_total - stats.previous_total) / stats.previous_total * 100
             change_text = f"{change:+.1f}%".replace(".", ",")
-            lines.append(f"<i>К прошлому периоду: {change_text}</i>")
+            lines.append(f"<i>К такому же интервалу прошлого периода: {change_text}</i>")
         else:
             lines.append("<i>В прошлом периоде расходов не было</i>")
+        lines.append(
+            f"<i>Сравнение: {stats.start:%d.%m.%Y} — {stats.comparison_end:%d.%m.%Y %H:%M}"
+            f" и {stats.previous_start:%d.%m.%Y} — {stats.previous_end:%d.%m.%Y %H:%M}</i>"
+        )
+        if stats.comparison_end < stats.end:
+            lines.append(
+                f"<i>Суммы за сравниваемые интервалы: {money(stats.comparison_total)}"
+                f" и {money(stats.previous_total)}</i>"
+            )
+    else:
+        lines.append("<i>Нет данных для сравнения с прошлым периодом.</i>")
+    if show_categories and stats.categories:
+        category_total = sum((value for _, value in stats.categories), Decimal("0"))
+        lines.extend(["", "<b>По категориям</b>", "<i>Доли от суммы товарных строк</i>"])
+        for name, value in stats.categories:
+            share = (
+                f"{value / category_total * 100:.1f}%".replace(".", ",") if category_total else "—"
+            )
+            lines.append(f"• {label(name)} — <b>{money(value)}</b> · {share}")
     if stats.stores:
         lines.extend(["", "<b>По магазинам</b>"])
         lines.extend(f"• {label(name)} — <b>{money(value)}</b>" for name, value in stats.stores)
@@ -129,16 +148,18 @@ def prices_report(
         return "\n".join(lines + ["Ничего не найдено."])
     for date_, name, price in rows:
         date_text = (
-            receipt_local_time(date_, timezone).strftime("%d.%m.%Y")
-            if date_
-            else "Дата неизвестна"
+            receipt_local_time(date_, timezone).strftime("%d.%m.%Y") if date_ else "Дата неизвестна"
         )
         lines.extend([f"<b>{money(price)}</b> · {date_text}", label(name), ""])
     return "\n".join(lines).rstrip()
 
 
-def top_report(spend: list[tuple[str, Decimal]], counts: list[tuple[str, Decimal]]) -> str:
-    lines = ["🛒 <b>Топ товаров</b>", "<i>За всё время</i>", ""]
+def top_report(
+    spend: list[tuple[str, Decimal]],
+    counts: list[tuple[str, Decimal]],
+    period_title: str = "За всё время",
+) -> str:
+    lines = ["🛒 <b>Топ товаров</b>", f"<i>{label(period_title)}</i>", ""]
     if not spend and not counts:
         return "\n".join(lines + ["Данных о покупках пока нет."])
     if spend:
@@ -148,8 +169,11 @@ def top_report(spend: list[tuple[str, Decimal]], counts: list[tuple[str, Decimal
     return "\n".join(lines).rstrip()
 
 
-def stores_report(rows: list[tuple[str | None, Decimal, int, Decimal]]) -> str:
-    lines = ["🏪 <b>Расходы по магазинам</b>", "<i>За всё время</i>", ""]
+def stores_report(
+    rows: list[tuple[str | None, Decimal, int, Decimal]],
+    period_title: str = "За всё время",
+) -> str:
+    lines = ["🏪 <b>Расходы по магазинам</b>", f"<i>{label(period_title)}</i>", ""]
     if not rows:
         return "\n".join(lines + ["Данных о покупках пока нет."])
     for store, total, count, average in rows:
@@ -162,3 +186,40 @@ def stores_report(rows: list[tuple[str | None, Decimal, int, Decimal]]) -> str:
             ]
         )
     return "\n".join(lines).rstrip()
+
+
+def status_report(status: ImportStatus, timezone: str = "Europe/Moscow") -> str:
+    def timestamp(value: datetime | None) -> str:
+        return (
+            receipt_local_time(value, timezone).strftime("%d.%m.%Y %H:%M")
+            if value
+            else "нет данных"
+        )
+
+    lines = [
+        "🔎 <b>Состояние импорта</b>",
+        "",
+        f"Последняя успешная синхронизация: <b>{timestamp(status.last_success)}</b>",
+        f"Последний чек по дате покупки: <b>{timestamp(status.last_purchase)}</b>",
+        f"Неразобранных чеков с ошибкой: <b>{status.failed_receipts}</b>",
+    ]
+    run = status.latest_run
+    if run is None:
+        lines.extend(["", "Синхронизация ещё не запускалась."])
+    else:
+        state = {
+            "running": "нет отметки о завершении",
+            "completed": "завершён с ошибками" if run.failed else "успешно завершён",
+            "failed": "завершён с ошибкой",
+        }.get(run.status, "неизвестен")
+        lines.extend(
+            [
+                "",
+                "<b>Последний запуск</b>",
+                f"Начало: {timestamp(run.started_at)}",
+                f"Завершение: {timestamp(run.finished_at)}",
+                f"Статус: {state}",
+                f"Разобрано: {run.parsed} · Пропущено: {run.skipped} · Ошибок: {run.failed}",
+            ]
+        )
+    return "\n".join(lines)

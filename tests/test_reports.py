@@ -31,11 +31,11 @@ def test_imported_receipt_totals_survive_html_rendering(session, html):
         EmailMessage("example", "ofdreceipt@beeline.ru", "Чек", html("beeline.html"))
     )
     service = StatsService(session)
-    report = period_report(service.period("month", datetime(2026, 8, 28)), "Текущий месяц")
+    report = period_report(service.period("month", datetime(2026, 8, 28, 23)), "Текущий месяц")
     visible = assert_valid_html(report)
     assert "Всего потрачено: 290,61 ₽" in visible
     assert "Чеков: 1" in visible
-    assert "01.08.2026 — 31.08.2026" in visible
+    assert "01.08.2026 — 28.08.2026" in visible
     assert "молоко 3,2% 930 мл — 2" in visible
     assert "Итого: 290,61 ₽" in assert_valid_html(receipt_report(service.last_receipt()))
 
