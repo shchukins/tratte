@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     telegram_allowed_user_ids: set[int] = Field(default_factory=set)
     sync_interval_minutes: int = 15
     default_timezone: str = "Europe/Moscow"
+    weekly_summary_enabled: bool = True
+    weekly_summary_hour: int = Field(default=9, ge=0, le=23)
+    weekly_summary_minute: int = Field(default=0, ge=0, le=59)
     log_level: str = "INFO"
 
     @field_validator("gmail_senders", mode="before")

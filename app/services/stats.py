@@ -78,6 +78,21 @@ class StatsService:
         elapsed = min(end - start, start - previous_start)
         comparison_end = start + elapsed
         previous_end = previous_start + elapsed
+        return self._period_stats(start, end, previous_start, previous_end, comparison_end)
+
+    def completed_week(self, now: datetime | None = None) -> PeriodStats:
+        end, _ = self.boundaries("week", now)
+        start = end - timedelta(days=7)
+        return self._period_stats(start, end, start - timedelta(days=7), start, end)
+
+    def _period_stats(
+        self,
+        start: datetime,
+        end: datetime,
+        previous_start: datetime,
+        previous_end: datetime,
+        comparison_end: datetime,
+    ) -> PeriodStats:
         rows = list(
             self.session.scalars(
                 select(Receipt)

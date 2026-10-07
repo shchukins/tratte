@@ -1,10 +1,19 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import StrEnum
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Numeric, String, Text, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    Date,
+    DateTime,
+    ForeignKey,
+    Numeric,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -105,3 +114,15 @@ class SyncRun(Base):
     skipped: Mapped[int] = mapped_column(default=0)
     failed: Mapped[int] = mapped_column(default=0)
     error: Mapped[str | None] = mapped_column(Text)
+
+
+class WeeklySummaryDelivery(Base):
+    __tablename__ = "weekly_summary_deliveries"
+    __table_args__ = (
+        UniqueConstraint("telegram_user_id", "week_start", name="uq_weekly_summary_user_week"),
+    )
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    telegram_user_id: Mapped[int] = mapped_column(BigInteger)
+    week_start: Mapped[date] = mapped_column(Date)
+    sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)

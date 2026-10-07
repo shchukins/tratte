@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Iterable
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from html import escape
 from zoneinfo import ZoneInfo
@@ -222,4 +222,47 @@ def status_report(status: ImportStatus, timezone: str = "Europe/Moscow") -> str:
                 f"Разобрано: {run.parsed} · Пропущено: {run.skipped} · Ошибок: {run.failed}",
             ]
         )
+    return "\n".join(lines)
+
+
+def weekly_summary_report(stats: PeriodStats) -> str:
+    last_day = stats.end - timedelta(days=1)
+    lines = [
+        "📊 <b>Итоги недели</b>",
+        f"<i>{stats.start:%d.%m.%Y} — {last_day:%d.%m.%Y}</i>",
+        "",
+        f"Всего потрачено: <b>{money(stats.total)}</b>",
+        f"Чеков: <b>{stats.receipt_count}</b>",
+        f"Средний чек: <b>{money(stats.average)}</b>",
+    ]
+    if not stats.receipt_count:
+        lines.append("За эту неделю разобранных чеков нет.")
+    if stats.previous_total is None:
+        lines.append("<i>Нет данных для сравнения с предыдущей неделей.</i>")
+    else:
+        difference = stats.total - stats.previous_total
+        signed_money = ("+" if difference >= 0 else "−") + money(abs(difference))
+        if stats.previous_total:
+            percent = f"{difference / stats.previous_total * 100:+.1f}%".replace(".", ",")
+            lines.append(f"К предыдущей неделе: <b>{signed_money} · {percent}</b>")
+        else:
+            lines.append(f"К предыдущей неделе: <b>{signed_money}</b>")
+            lines.append("<i>Сумма прошлой недели — 0 ₽; процент не рассчитывается.</i>")
+        previous_last_day = stats.previous_end - timedelta(days=1)
+        lines.append(
+            f"<i>Предыдущая неделя: {stats.previous_start:%d.%m.%Y}"
+            f" — {previous_last_day:%d.%m.%Y} · {money(stats.previous_total)}</i>"
+        )
+    if stats.categories:
+        category_total = sum((value for _, value in stats.categories), Decimal("0"))
+        lines.extend(["", "<b>Основные категории</b>", "<i>Доли от суммы товарных строк</i>"])
+        for name, value in stats.categories[:5]:
+            share = (
+                f"{value / category_total * 100:.1f}%".replace(".", ",") if category_total else "—"
+            )
+            lines.append(f"• {label(name)} — <b>{money(value)}</b> · {share}")
+        if len(stats.categories) > 5:
+            remainder = sum((value for _, value in stats.categories[5:]), Decimal("0"))
+            lines.append(f"• Остальные категории — <b>{money(remainder)}</b>")
+    lines.extend(["", "<i>По разобранным чекам на момент отправки.</i>"])
     return "\n".join(lines)
