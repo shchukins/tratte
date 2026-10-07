@@ -1,0 +1,71 @@
+{
+  "runtime": "llama.cpp",
+  "runtime_commit": "a55e952b85741249fcbf120bcd9d47cf2b1f6e48",
+  "runtime_version": "0.5.0-dev build 1",
+  "model_repository": "Qwen/Qwen3-4B-GGUF",
+  "quantization": "Q4_K_M",
+  "model_sha256": "7485fe6f11af29433bc51cab58009521f205840f5b4ae3a32fa7f92e8534fdf5",
+  "cpu_only": true,
+  "threads": 6,
+  "threads_batch": 6,
+  "context_size": 4096,
+  "parallel_slots": 1,
+  "bind": "127.0.0.1:18081",
+  "offline": true,
+  "reasoning": "auto, per-request enable_thinking",
+  "api_models": {
+    "models": [
+      {
+        "name": "tratte-qwen3-4b-q4km",
+        "model": "tratte-qwen3-4b-q4km",
+        "modified_at": "",
+        "size": "",
+        "digest": "",
+        "type": "model",
+        "description": "",
+        "tags": [
+          ""
+        ],
+        "capabilities": [
+          "completion"
+        ],
+        "parameters": "",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "",
+          "families": [
+            ""
+          ],
+          "parameter_size": "",
+          "quantization_level": ""
+        }
+      }
+    ],
+    "object": "list",
+    "data": [
+      {
+        "id": "tratte-qwen3-4b-q4km",
+        "aliases": [
+          "tratte-qwen3-4b-q4km"
+        ],
+        "tags": [],
+        "object": "model",
+        "created": 1791318244,
+        "owned_by": "llamacpp",
+        "meta": {
+          "vocab_type": 2,
+          "n_vocab": 151936,
+          "n_ctx": 4096,
+          "n_ctx_train": 40960,
+          "n_embd": 2560,
+          "n_params": 4022468096,
+          "size": 2491323904,
+          "ftype": "Q4_K - Medium"
+        }
+      }
+    ]
+  },
+  "server_command": "/home/shch/llama.cpp/build/bin/llama-server --offline -hf Qwen/Qwen3-4B-GGUF:Q4_K_M --threads 6 --threads-batch 6 --device none --gpu-layers 0 --ctx-size 4096 --parallel 1 --host 127.0.0.1 --port 18081 --alias tratte-qwen3-4b-q4km --reasoning auto",
+  "cpu": "Model name:                              Intel(R) Core(TM) i7-6700T CPU @ 2.80GHz\nThread(s) per core:                      2\nCore(s) per socket:                      4\nSocket(s):                               1"
+}

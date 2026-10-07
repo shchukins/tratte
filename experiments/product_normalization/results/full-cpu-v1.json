@@ -1,0 +1,310 @@
+{
+  "configuration": {
+    "dataset_sha256": "1e5d74d77e5b9bb19b1d4c3f947e39ffe26f69179d7875f8bfb5f07ba981f7da",
+    "prompt_version": "product_eval_v1",
+    "prompt_sha256": "b8a0164e70caac13d8396b085f819052cc2ed26f5da842f68928cb297a94e0a7",
+    "rules_sha256": "c13fb4ed2ccd27cfbffc706a6d4c80f579af6f0e8a6981976355c28938fd5c51",
+    "model": "tratte-qwen3-4b-q4km",
+    "base_url": "http://127.0.0.1:18081/v1",
+    "thinking": false,
+    "schema": true,
+    "temperature": 0,
+    "seed": 42,
+    "max_tokens": 96,
+    "timeout_seconds": 60,
+    "repeats": 1,
+    "selected_ids": [
+      "c001",
+      "c011",
+      "c021",
+      "c031",
+      "c041",
+      "c051",
+      "c061",
+      "c071",
+      "c081",
+      "c091",
+      "c002",
+      "c012",
+      "c022",
+      "c032",
+      "c042",
+      "c052",
+      "c062",
+      "c072",
+      "c082",
+      "c092",
+      "c003",
+      "c013",
+      "c023",
+      "c033",
+      "c043",
+      "c053",
+      "c063",
+      "c073",
+      "c083",
+      "c093",
+      "c004",
+      "c014",
+      "c024",
+      "c034",
+      "c044",
+      "c054",
+      "c064",
+      "c074",
+      "c084",
+      "c094",
+      "c005",
+      "c015",
+      "c025",
+      "c035",
+      "c045",
+      "c055",
+      "c065",
+      "c075",
+      "c085",
+      "c095",
+      "c006",
+      "c016",
+      "c026",
+      "c036",
+      "c046",
+      "c056",
+      "c066",
+      "c076",
+      "c086",
+      "c096",
+      "c007",
+      "c017",
+      "c027",
+      "c037",
+      "c047",
+      "c057",
+      "c067",
+      "c077",
+      "c087",
+      "c097",
+      "c008",
+      "c018",
+      "c028",
+      "c038",
+      "c048",
+      "c058",
+      "c068",
+      "c078",
+      "c088",
+      "c098",
+      "c009",
+      "c019",
+      "c029",
+      "c039",
+      "c049",
+      "c059",
+      "c069",
+      "c079",
+      "c089",
+      "c099",
+      "c010",
+      "c020",
+      "c030",
+      "c040",
+      "c050",
+      "c060",
+      "c070",
+      "c080",
+      "c090",
+      "c100",
+      "p001",
+      "p011",
+      "p018",
+      "p002",
+      "p012",
+      "p028",
+      "p003",
+      "p013",
+      "p029",
+      "p004",
+      "p014",
+      "p030",
+      "p005",
+      "p015",
+      "p031",
+      "p006",
+      "p016",
+      "p032",
+      "p007",
+      "p017",
+      "p033",
+      "p008",
+      "p019",
+      "p034",
+      "p009",
+      "p020",
+      "p035",
+      "p010",
+      "p021",
+      "p022",
+      "p023",
+      "p024",
+      "p025",
+      "p026",
+      "p027"
+    ],
+    "source": "synthetic, agent-authored reference labels; not user-reviewed or production-representative"
+  },
+  "planned_requests": 135,
+  "completed_requests": 135,
+  "complete": true,
+  "metrics": {
+    "categories": {
+      "requests": 100,
+      "unique_cases": 100,
+      "valid_response_rate": 1.0,
+      "accuracy_including_failures": 0.88,
+      "latency_median_seconds": 2.1487999999999996,
+      "latency_max_seconds": 11.4926,
+      "errors": {},
+      "mistakes": [
+        {
+          "id": "c002",
+          "expected": "молочные продукты",
+          "prediction": "напитки"
+        },
+        {
+          "id": "c022",
+          "expected": "снеки",
+          "prediction": "другое"
+        },
+        {
+          "id": "c054",
+          "expected": "хлеб и выпечка",
+          "prediction": "готовая еда"
+        },
+        {
+          "id": "c094",
+          "expected": "неизвестно",
+          "prediction": "другое"
+        },
+        {
+          "id": "c046",
+          "expected": "мясо и рыба",
+          "prediction": "готовая еда"
+        },
+        {
+          "id": "c056",
+          "expected": "хлеб и выпечка",
+          "prediction": "снеки"
+        },
+        {
+          "id": "c076",
+          "expected": "бытовые товары",
+          "prediction": "напитки"
+        },
+        {
+          "id": "c057",
+          "expected": "хлеб и выпечка",
+          "prediction": "готовая еда"
+        },
+        {
+          "id": "c097",
+          "expected": "неизвестно",
+          "prediction": "напитки"
+        },
+        {
+          "id": "c078",
+          "expected": "бытовые товары",
+          "prediction": "другое"
+        },
+        {
+          "id": "c030",
+          "expected": "снеки",
+          "prediction": "другое"
+        },
+        {
+          "id": "c090",
+          "expected": "другое",
+          "prediction": "бытовые товары"
+        }
+      ],
+      "repeat_agreement": null,
+      "repeated_cases": 0,
+      "rules_accuracy": 0.46,
+      "known_category_accuracy": 0.8888888888888888,
+      "abstentions": 8,
+      "classified_accuracy": 0.8695652173913043
+    },
+    "pairs": {
+      "requests": 35,
+      "unique_cases": 35,
+      "valid_response_rate": 1.0,
+      "accuracy_including_failures": 0.6857142857142857,
+      "latency_median_seconds": 2.3264,
+      "latency_max_seconds": 8.656,
+      "errors": {},
+      "mistakes": [
+        {
+          "id": "p011",
+          "expected": "different",
+          "prediction": "same"
+        },
+        {
+          "id": "p018",
+          "expected": "insufficient",
+          "prediction": "same"
+        },
+        {
+          "id": "p028",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p029",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p030",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p032",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p017",
+          "expected": "different",
+          "prediction": "same"
+        },
+        {
+          "id": "p033",
+          "expected": "insufficient",
+          "prediction": "same"
+        },
+        {
+          "id": "p034",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p035",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p026",
+          "expected": "different",
+          "prediction": "same"
+        }
+      ],
+      "repeat_agreement": null,
+      "repeated_cases": 0,
+      "false_merges": 5,
+      "missed_matches": 0,
+      "merge_precision": 0.6666666666666666,
+      "merge_recall": 1.0,
+      "abstentions": 1
+    }
+  }
+}

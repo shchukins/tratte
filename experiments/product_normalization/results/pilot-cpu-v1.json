@@ -1,0 +1,116 @@
+{
+  "configuration": {
+    "dataset_sha256": "1e5d74d77e5b9bb19b1d4c3f947e39ffe26f69179d7875f8bfb5f07ba981f7da",
+    "prompt_version": "product_eval_v1",
+    "prompt_sha256": "b8a0164e70caac13d8396b085f819052cc2ed26f5da842f68928cb297a94e0a7",
+    "rules_sha256": "c13fb4ed2ccd27cfbffc706a6d4c80f579af6f0e8a6981976355c28938fd5c51",
+    "model": "tratte-qwen3-4b-q4km",
+    "base_url": "http://127.0.0.1:18081/v1",
+    "thinking": false,
+    "schema": true,
+    "temperature": 0,
+    "seed": 42,
+    "max_tokens": 96,
+    "timeout_seconds": 60,
+    "repeats": 2,
+    "selected_ids": [
+      "c001",
+      "c011",
+      "c021",
+      "c031",
+      "c041",
+      "c051",
+      "c061",
+      "c071",
+      "c081",
+      "c091",
+      "p001",
+      "p011",
+      "p018",
+      "p002",
+      "p012",
+      "p028",
+      "p003",
+      "p013",
+      "p029",
+      "p004"
+    ],
+    "source": "synthetic, agent-authored reference labels; not user-reviewed or production-representative"
+  },
+  "metrics": {
+    "categories": {
+      "requests": 20,
+      "unique_cases": 10,
+      "valid_response_rate": 1.0,
+      "accuracy_including_failures": 1.0,
+      "latency_median_seconds": 2.17255,
+      "latency_max_seconds": 13.0151,
+      "errors": {},
+      "mistakes": [],
+      "repeat_agreement": 1.0,
+      "repeated_cases": 10,
+      "rules_accuracy": 0.7,
+      "known_category_accuracy": 1.0,
+      "abstentions": 2,
+      "classified_accuracy": 1.0
+    },
+    "pairs": {
+      "requests": 20,
+      "unique_cases": 10,
+      "valid_response_rate": 1.0,
+      "accuracy_including_failures": 0.6,
+      "latency_median_seconds": 2.3491999999999997,
+      "latency_max_seconds": 8.4405,
+      "errors": {},
+      "mistakes": [
+        {
+          "id": "p011",
+          "expected": "different",
+          "prediction": "same"
+        },
+        {
+          "id": "p018",
+          "expected": "insufficient",
+          "prediction": "same"
+        },
+        {
+          "id": "p028",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p029",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p011",
+          "expected": "different",
+          "prediction": "same"
+        },
+        {
+          "id": "p018",
+          "expected": "insufficient",
+          "prediction": "same"
+        },
+        {
+          "id": "p028",
+          "expected": "insufficient",
+          "prediction": "different"
+        },
+        {
+          "id": "p029",
+          "expected": "insufficient",
+          "prediction": "different"
+        }
+      ],
+      "repeat_agreement": 1.0,
+      "repeated_cases": 10,
+      "false_merges": 4,
+      "missed_matches": 0,
+      "merge_precision": 0.6666666666666666,
+      "merge_recall": 1.0,
+      "abstentions": 0
+    }
+  }
+}

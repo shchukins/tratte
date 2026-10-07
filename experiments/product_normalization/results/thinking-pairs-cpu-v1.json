@@ -1,0 +1,54 @@
+{
+  "configuration": {
+    "dataset_sha256": "1e5d74d77e5b9bb19b1d4c3f947e39ffe26f69179d7875f8bfb5f07ba981f7da",
+    "prompt_version": "product_eval_v1",
+    "prompt_sha256": "b8a0164e70caac13d8396b085f819052cc2ed26f5da842f68928cb297a94e0a7",
+    "rules_sha256": "c13fb4ed2ccd27cfbffc706a6d4c80f579af6f0e8a6981976355c28938fd5c51",
+    "model": "tratte-qwen3-4b-q4km",
+    "base_url": "http://127.0.0.1:18081/v1",
+    "thinking": true,
+    "schema": true,
+    "temperature": 0,
+    "seed": 42,
+    "max_tokens": 1024,
+    "timeout_seconds": 120.0,
+    "repeats": 1,
+    "selected_ids": [
+      "p001",
+      "p011",
+      "p018"
+    ],
+    "source": "synthetic, agent-authored reference labels; not user-reviewed or production-representative"
+  },
+  "planned_requests": 3,
+  "completed_requests": 1,
+  "complete": false,
+  "stop_reason": "Manually interrupted to limit CPU time; unfinished requests are not counted as completed. No quality conclusions for untested cases.",
+  "metrics": {
+    "pairs": {
+      "requests": 1,
+      "unique_cases": 1,
+      "valid_response_rate": 0.0,
+      "accuracy_including_failures": 0.0,
+      "latency_median_seconds": 120.0139,
+      "latency_max_seconds": 120.0139,
+      "errors": {
+        "transport_error": 1
+      },
+      "mistakes": [
+        {
+          "id": "p001",
+          "expected": "same",
+          "prediction": null
+        }
+      ],
+      "repeat_agreement": null,
+      "repeated_cases": 0,
+      "false_merges": 0,
+      "missed_matches": 1,
+      "merge_precision": null,
+      "merge_recall": 0.0,
+      "abstentions": 0
+    }
+  }
+}

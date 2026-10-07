@@ -245,6 +245,15 @@ tests/fixtures/  только обезличенные HTML-чеки
 docker-compose.yml
 ```
 
+## Эксперименты с локальной моделью
+
+Изолированный стенд этапа 1 для Qwen3-4B описан в
+[experiments/product_normalization/README.md](experiments/product_normalization/README.md).
+Он не меняет импорт или рабочие таблицы. Измерения и ограничения приведены в
+[отчёте эксперимента](experiments/product_normalization/REPORT.md).
+Личные названия товаров и ответы модели хранятся только в исключённом из Git
+каталоге `.local-evaluations/`.
+
 ## Добавление нового формата ОФД
 
 Прочитайте одно письмо локально, удалите email, адрес, ИНН, ФН/ФД/ФПД, Gmail ID и
