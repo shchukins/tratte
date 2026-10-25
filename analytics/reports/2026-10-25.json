@@ -1,0 +1,270 @@
+{
+  "sync": {
+    "failed_runs": 18,
+    "latest_status": "failed",
+    "unfinished_runs": 0,
+    "last_completed_at": "2026-10-25T02:00:17.991509+00:00",
+    "latest_started_at": "2026-10-25T02:45:17.284827+00:00",
+    "failed_runs_last_24h": 6
+  },
+  "units": [
+    {
+      "item_rows": 47,
+      "audit_unit": "kg",
+      "zero_prices": 0,
+      "zero_totals": 0,
+      "invalid_values": 0,
+      "negative_prices": 0,
+      "negative_totals": 0,
+      "zero_quantities": 0,
+      "negative_quantities": 0,
+      "arithmetic_mismatches": 0
+    },
+    {
+      "item_rows": 486,
+      "audit_unit": "piece",
+      "zero_prices": 0,
+      "zero_totals": 0,
+      "invalid_values": 0,
+      "negative_prices": 0,
+      "negative_totals": 0,
+      "zero_quantities": 0,
+      "negative_quantities": 0,
+      "arithmetic_mismatches": 0
+    }
+  ],
+  "repeats": {
+    "item_rows": 533,
+    "name_unit_keys": 221,
+    "keys_in_two_months": 59,
+    "keys_in_three_months": 15
+  },
+  "overview": {
+    "last_purchase": "2026-10-24T13:10:00+00:00",
+    "first_purchase": "2026-05-27T21:00:00+00:00",
+    "parsed_receipts": 166,
+    "product_aliases": 0,
+    "future_purchase_date": 0,
+    "duplicate_item_groups": 6,
+    "missing_purchase_date": 0,
+    "duplicate_item_extra_rows": 6,
+    "latest_receipt_created_at": "2026-10-24T13:15:18.308114+00:00",
+    "latest_receipt_updated_at": "2026-10-24T13:15:18.393984+00:00"
+  },
+  "operations": [
+    {
+      "receipts": 102,
+      "operation_class": "purchase"
+    },
+    {
+      "receipts": 64,
+      "operation_class": "unknown"
+    }
+  ],
+  "parameters": {
+    "as_of": "2026-10-25T20:11:15.782328+00:00",
+    "timezone": "Europe/Moscow",
+    "base_month": "2026-08-01",
+    "min_receipts": 2,
+    "current_month": "2026-09-01"
+  },
+  "pair_reasons": [
+    {
+      "month": "2026-08-01",
+      "reason": "identity_unverified",
+      "currency": "RUB",
+      "item_rows": 43,
+      "item_amount": 4074.78
+    },
+    {
+      "month": "2026-08-01",
+      "reason": "not_observed_in_both_periods",
+      "currency": "RUB",
+      "item_rows": 33,
+      "item_amount": 3481.49
+    },
+    {
+      "month": "2026-08-01",
+      "reason": "operation_unknown",
+      "currency": "RUB",
+      "item_rows": 37,
+      "item_amount": 6668.44
+    },
+    {
+      "month": "2026-08-01",
+      "reason": "too_few_receipts",
+      "currency": "RUB",
+      "item_rows": 19,
+      "item_amount": 2056.16
+    },
+    {
+      "month": "2026-09-01",
+      "reason": "identity_unverified",
+      "currency": "RUB",
+      "item_rows": 47,
+      "item_amount": 4870.35
+    },
+    {
+      "month": "2026-09-01",
+      "reason": "not_observed_in_both_periods",
+      "currency": "RUB",
+      "item_rows": 105,
+      "item_amount": 12996.84
+    },
+    {
+      "month": "2026-09-01",
+      "reason": "operation_unknown",
+      "currency": "RUB",
+      "item_rows": 36,
+      "item_amount": 7097.92
+    },
+    {
+      "month": "2026-09-01",
+      "reason": "too_few_receipts",
+      "currency": "RUB",
+      "item_rows": 30,
+      "item_amount": 3863.29
+    }
+  ],
+  "pair_coverage": [
+    {
+      "month": "2026-08-01",
+      "item_rows": 132,
+      "positive_rub_rows": 132,
+      "repeated_candidate_keys": 8,
+      "positive_rub_item_amount": 16280.87,
+      "repeated_candidate_amount": 4074.78,
+      "confirmed_comparable_amount": 0,
+      "eligible_purchase_item_amount": 9612.43,
+      "unknown_operation_item_amount": 6668.44,
+      "repeated_name_candidate_amount": 6130.94,
+      "candidate_coverage_of_positive_rub": 0.2502802368669488,
+      "confirmed_coverage_of_positive_rub": 0.0,
+      "candidate_coverage_of_eligible_purchases": 0.4239073782591915,
+      "confirmed_coverage_of_eligible_purchases": 0.0
+    },
+    {
+      "month": "2026-09-01",
+      "item_rows": 218,
+      "positive_rub_rows": 218,
+      "repeated_candidate_keys": 8,
+      "positive_rub_item_amount": 28828.4,
+      "repeated_candidate_amount": 4870.35,
+      "confirmed_comparable_amount": 0,
+      "eligible_purchase_item_amount": 21730.48,
+      "unknown_operation_item_amount": 7097.92,
+      "repeated_name_candidate_amount": 8733.64,
+      "candidate_coverage_of_positive_rub": 0.1689427786488324,
+      "confirmed_coverage_of_positive_rub": 0.0,
+      "candidate_coverage_of_eligible_purchases": 0.22412528393298262,
+      "confirmed_coverage_of_eligible_purchases": 0.0
+    }
+  ],
+  "contract_version": "expense_comparison_audit_v1",
+  "monthly_receipts": [
+    {
+      "month": "2026-05-01",
+      "currency": "RUB",
+      "receipts": 2,
+      "receipt_amount": 972.11,
+      "purchase_receipts": 2,
+      "mismatched_receipts": 0,
+      "null_receipt_totals": 0,
+      "receipt_minus_items": 0.0,
+      "zero_receipt_totals": 0,
+      "invalid_receipt_totals": 0,
+      "negative_receipt_totals": 0,
+      "unreconcilable_receipts": 0,
+      "unknown_operation_receipts": 0,
+      "absolute_receipt_minus_items": 0.0
+    },
+    {
+      "month": "2026-06-01",
+      "currency": "RUB",
+      "receipts": 1,
+      "receipt_amount": 173.67,
+      "purchase_receipts": 1,
+      "mismatched_receipts": 0,
+      "null_receipt_totals": 0,
+      "receipt_minus_items": 0.0,
+      "zero_receipt_totals": 0,
+      "invalid_receipt_totals": 0,
+      "negative_receipt_totals": 0,
+      "unreconcilable_receipts": 0,
+      "unknown_operation_receipts": 0,
+      "absolute_receipt_minus_items": 0.0
+    },
+    {
+      "month": "2026-07-01",
+      "currency": "RUB",
+      "receipts": 4,
+      "receipt_amount": 547.37,
+      "purchase_receipts": 1,
+      "mismatched_receipts": 0,
+      "null_receipt_totals": 0,
+      "receipt_minus_items": 0.0,
+      "zero_receipt_totals": 0,
+      "invalid_receipt_totals": 0,
+      "negative_receipt_totals": 0,
+      "unreconcilable_receipts": 0,
+      "unknown_operation_receipts": 3,
+      "absolute_receipt_minus_items": 0.0
+    },
+    {
+      "month": "2026-08-01",
+      "currency": "RUB",
+      "receipts": 52,
+      "receipt_amount": 16280.87,
+      "purchase_receipts": 25,
+      "mismatched_receipts": 0,
+      "null_receipt_totals": 0,
+      "receipt_minus_items": 0.0,
+      "zero_receipt_totals": 0,
+      "invalid_receipt_totals": 0,
+      "negative_receipt_totals": 0,
+      "unreconcilable_receipts": 0,
+      "unknown_operation_receipts": 27,
+      "absolute_receipt_minus_items": 0.0
+    },
+    {
+      "month": "2026-09-01",
+      "currency": "RUB",
+      "receipts": 66,
+      "receipt_amount": 28828.4,
+      "purchase_receipts": 42,
+      "mismatched_receipts": 0,
+      "null_receipt_totals": 0,
+      "receipt_minus_items": 0.0,
+      "zero_receipt_totals": 0,
+      "invalid_receipt_totals": 0,
+      "negative_receipt_totals": 0,
+      "unreconcilable_receipts": 0,
+      "unknown_operation_receipts": 24,
+      "absolute_receipt_minus_items": 0.0
+    },
+    {
+      "month": "2026-10-01",
+      "currency": "RUB",
+      "receipts": 41,
+      "receipt_amount": 20670.56,
+      "purchase_receipts": 31,
+      "mismatched_receipts": 0,
+      "null_receipt_totals": 0,
+      "receipt_minus_items": 0.0,
+      "zero_receipt_totals": 0,
+      "invalid_receipt_totals": 0,
+      "negative_receipt_totals": 0,
+      "unreconcilable_receipts": 0,
+      "unknown_operation_receipts": 10,
+      "absolute_receipt_minus_items": 0.0
+    }
+  ],
+  "receipt_statuses": [
+    {
+      "status": "parsed",
+      "receipts": 166
+    }
+  ],
+  "database_snapshot_at": "2026-10-25T20:14:53.49228+00:00",
+  "audit_sql_sha256": "abc154f6f19e4dd980f87945519dda615ffb0e217737c6725cbfbca6ec049fd3"
+}

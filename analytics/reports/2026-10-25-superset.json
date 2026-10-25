@@ -1,0 +1,184 @@
+{
+  "charts": [
+    {
+      "id": 113,
+      "viz_type": "big_number_total",
+      "datasource_id": 24
+    },
+    {
+      "id": 114,
+      "viz_type": "big_number_total",
+      "datasource_id": 24
+    },
+    {
+      "id": 115,
+      "viz_type": "echarts_timeseries_bar",
+      "datasource_id": 24
+    },
+    {
+      "id": 116,
+      "viz_type": "echarts_timeseries_line",
+      "datasource_id": 24
+    },
+    {
+      "id": 117,
+      "viz_type": "pie",
+      "datasource_id": 25
+    },
+    {
+      "id": 118,
+      "viz_type": "echarts_timeseries_bar",
+      "datasource_id": 24
+    },
+    {
+      "id": 119,
+      "viz_type": "echarts_timeseries_bar",
+      "datasource_id": 24
+    },
+    {
+      "id": 120,
+      "viz_type": "echarts_timeseries_bar",
+      "datasource_id": 24
+    },
+    {
+      "id": 121,
+      "viz_type": "echarts_timeseries_bar",
+      "datasource_id": 24
+    },
+    {
+      "id": 122,
+      "viz_type": "echarts_timeseries_bar",
+      "datasource_id": 24
+    },
+    {
+      "id": 123,
+      "viz_type": "big_number_total",
+      "datasource_id": 24
+    },
+    {
+      "id": 124,
+      "viz_type": "big_number_total",
+      "datasource_id": 24
+    },
+    {
+      "id": 125,
+      "viz_type": "big_number_total",
+      "datasource_id": 24
+    },
+    {
+      "id": 126,
+      "viz_type": "heatmap_v2",
+      "datasource_id": 24
+    },
+    {
+      "id": 127,
+      "viz_type": "echarts_timeseries_line",
+      "datasource_id": 26
+    }
+  ],
+  "datasets": [
+    {
+      "id": 24,
+      "sql_md5": "475fa54b80445cb96c092fab219defaf",
+      "virtual": true,
+      "table_name": "tratte_receipts",
+      "database_id": 4,
+      "passes_other_totals": true,
+      "has_return_text_rule": true
+    },
+    {
+      "id": 25,
+      "sql_md5": "e2fec847f599c9d5a3e9cf38d6fe89be",
+      "virtual": true,
+      "table_name": "tratte_items",
+      "database_id": 4,
+      "passes_other_totals": true,
+      "has_return_text_rule": true
+    },
+    {
+      "id": 26,
+      "sql_md5": "8067f7e529d6bc729410486ee887000e",
+      "virtual": true,
+      "table_name": "tratte_daily_spend",
+      "database_id": 4,
+      "passes_other_totals": true,
+      "has_return_text_rule": true
+    }
+  ],
+  "dashboards": [
+    {
+      "id": 12,
+      "published": true,
+      "cross_filters": true,
+      "native_filters": [
+        {
+          "id": "NATIVE_FILTER-4L_DT97Mcfy8o_Z2JNfZK",
+          "name": "Период",
+          "type": "NATIVE_FILTER",
+          "scope": {
+            "excluded": [
+              123,
+              124,
+              125,
+              127
+            ],
+            "rootPath": [
+              "ROOT_ID"
+            ]
+          },
+          "filterType": "filter_time",
+          "description": "",
+          "defaultValue": true,
+          "controlValues": {
+            "enableEmptyFilter": false
+          },
+          "requiredFirst": {},
+          "defaultDataMask": {
+            "filterState": {
+              "value": "Last month"
+            },
+            "extraFormData": {
+              "time_range": "Last month"
+            }
+          },
+          "defaultValueQueriesData": null
+        }
+      ],
+      "layout_chart_ids": [
+        123,
+        124,
+        125,
+        126,
+        127
+      ]
+    }
+  ],
+  "observed_at": "2026-10-25T20:18:21.845567+00:00",
+  "superset_version": "6.1.0",
+  "superset_audit_sql_sha256": "f0ad36b81ead5a9757a1b19fccd9cbd352d3585621fd39d406a8836aae45dab5",
+  "browser_verification": {
+    "authenticated": true,
+    "dashboard_id": 12,
+    "layout_chart_ids": [
+      123,
+      124,
+      125,
+      126,
+      127
+    ],
+    "default_last_month_bounds": [
+      "2026-09-25",
+      "2026-10-25"
+    ],
+    "previous_calendar_month_bounds": [
+      "2026-09-01",
+      "2026-10-01"
+    ],
+    "chart_126_applied_filter": "previous calendar month",
+    "chart_126_explore_temporal_filter": "2026-09-01 <= purchased_at < 2026-10-01",
+    "excluded_cards_unchanged": true,
+    "waterfall_visible_in_chart_catalog": true,
+    "saved_chart_or_dashboard_changes": false,
+    "cross_filter_click_and_product_drill": "not exercised; no product chart in active layout"
+  }
+}
