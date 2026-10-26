@@ -8,6 +8,7 @@ import typer
 import uvicorn
 from sqlalchemy import select
 
+from app.analytics_cli import cli as analytics_cli
 from app.bot import run_bot
 from app.config import get_settings
 from app.db import SessionLocal
@@ -19,6 +20,7 @@ from app.services.secrets import FernetSecretStorage
 from app.services.sync import retry_failed, sync_receipts
 
 cli = typer.Typer(no_args_is_help=True)
+cli.add_typer(analytics_cli, name="analytics")
 
 
 def _logging() -> None:

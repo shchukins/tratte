@@ -11,6 +11,7 @@ __pycache__
 *.backup
 *.pem
 .secrets
+.local-evaluations
 client_secret*.json
 credentials*.json
 gmail-token.json

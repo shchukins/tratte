@@ -6,6 +6,7 @@ from enum import StrEnum
 
 from sqlalchemy import (
     BigInteger,
+    CheckConstraint,
     Date,
     DateTime,
     ForeignKey,
@@ -126,3 +127,59 @@ class WeeklySummaryDelivery(Base):
     telegram_user_id: Mapped[int] = mapped_column(BigInteger)
     week_start: Mapped[date] = mapped_column(Date)
     sent_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AnalyticsProduct(Base):
+    """One physical variant; IDs and specifications are never reassigned."""
+
+    __tablename__ = "analytics_products"
+    __table_args__ = (
+        CheckConstraint("comparison_unit IN ('kg', 'l', 'piece')", name="ck_product_unit"),
+    )
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    specification: Mapped[str] = mapped_column(Text)
+    comparison_unit: Mapped[str] = mapped_column(String(10))
+
+
+class AnalyticsMappingVersion(Base):
+    __tablename__ = "analytics_mapping_versions"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    rules_version: Mapped[str] = mapped_column(String(64))
+    manifest: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
+
+
+class AnalyticsItemMapping(Base):
+    __tablename__ = "analytics_item_mappings"
+    __table_args__ = (
+        CheckConstraint(
+            "status IN ('confirmed', 'rejected', 'unresolved')", name="ck_mapping_status"
+        ),
+        CheckConstraint(
+            "(status = 'confirmed' AND product_id IS NOT NULL "
+            "AND factor IS NOT NULL AND factor > 0 "
+            "AND quantity_basis IS NOT NULL AND quantity_basis IN "
+            "('source_weight', 'source_volume', 'package_count', 'piece_count')) "
+            "OR (status != 'confirmed' AND product_id IS NULL AND factor IS NULL "
+            "AND quantity_basis IS NULL)",
+            name="ck_mapping_decision",
+        ),
+        CheckConstraint(
+            "source_item_id IS NULL OR source_item_id = item_id", name="ck_mapping_item"
+        ),
+    )
+    mapping_version_id: Mapped[str] = mapped_column(
+        ForeignKey("analytics_mapping_versions.id"), primary_key=True
+    )
+    # Historical ID survives reprocess; the live FK becomes NULL on source deletion.
+    item_id: Mapped[int] = mapped_column(primary_key=True)
+    source_item_id: Mapped[int | None] = mapped_column(
+        ForeignKey("receipt_items.id", ondelete="SET NULL"), index=True
+    )
+    source_fingerprint: Mapped[str] = mapped_column(String(64))
+    product_id: Mapped[str | None] = mapped_column(ForeignKey("analytics_products.id"))
+    status: Mapped[str] = mapped_column(String(20))
+    source: Mapped[str] = mapped_column(Text)
+    note: Mapped[str] = mapped_column(Text)
+    quantity_basis: Mapped[str | None] = mapped_column(String(20))
+    factor: Mapped[Decimal | None] = mapped_column(Numeric(18, 9))

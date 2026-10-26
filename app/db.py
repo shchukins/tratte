@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import get_settings
@@ -17,7 +17,14 @@ def make_engine(url: str | None = None):
     kwargs = (
         {"connect_args": {"check_same_thread": False}} if database_url.startswith("sqlite") else {}
     )
-    return create_engine(database_url, **kwargs)
+    result = create_engine(database_url, **kwargs)
+    if database_url.startswith("sqlite"):
+
+        @event.listens_for(result, "connect")
+        def enable_foreign_keys(connection, record):
+            connection.execute("PRAGMA foreign_keys=ON")
+
+    return result
 
 
 engine = make_engine()
