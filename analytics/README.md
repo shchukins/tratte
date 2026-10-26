@@ -8,6 +8,10 @@
 - `CONTRACT.md` — периоды, знаменатели, исключения и требования к наблюдениям;
 - `ADR-001-analytical-identity.md` — минимальная схема для следующего issue #3;
 - `IDENTITY.md` — реализованный контракт #3, CLI ручной проверки, миграция и откат;
+- `MARTS.md` — контракт #4: grains, поля, знаменатели, CLI, установка и права BI;
+- `sql/views_v1.sql` — обычные безопасные PostgreSQL views;
+- `sql/comparison_v1.sql` — параметризованный расчёт с обязательным validate gate;
+- `sql/grants_v1.sql` — явные минимальные grants для отдельного BI role;
 - `reports/2026-10-26-identity.md` — локальные проверки и ручное подтверждение scope #3;
 - `reports/2026-10-25.md` — факты аудита и границы проверки Superset;
 - `reports/2026-10-25.json` и `reports/2026-10-25-superset.json` — агрегаты среза.

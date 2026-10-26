@@ -2,12 +2,13 @@
 
 import json
 import os
-from datetime import date
+from datetime import UTC, date, datetime
 from pathlib import Path
 
 import typer
+from sqlalchemy.exc import SQLAlchemyError
 
-from app.db import SessionLocal
+from app.db import SessionLocal, engine
 from app.models import AnalyticsMappingVersion
 from app.services.analytical_identity import (
     Review,
@@ -16,15 +17,20 @@ from app.services.analytical_identity import (
     export_review,
     validate_version,
 )
+from app.services.analytical_marts import calculate
 
 cli = typer.Typer(no_args_is_help=True)
 
 
 def write_private(path: Path, document):
+    write_private_text(path, json.dumps(document, ensure_ascii=False, indent=2))
+
+
+def write_private_text(path: Path, document: str):
     # Never overwrite an existing review or make private product rows world-readable.
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
     with os.fdopen(fd, "w", encoding="utf-8") as stream:
-        json.dump(document, stream, ensure_ascii=False, indent=2)
+        stream.write(document)
         stream.write("\n")
 
 
@@ -101,3 +107,23 @@ def validate(version: str):
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
     typer.echo(json.dumps(result, sort_keys=True))
+
+
+@cli.command("marts")
+def marts(
+    output: Path, mapping_version: str | None = None, as_of: str | None = None,
+    base_month: str | None = None, current_month: str | None = None, store: str | None = None,
+):
+    """Export private SQL datasets; validate the explicit mapping in the same read-only snapshot."""
+    try:
+        document = calculate(
+            engine, as_of=datetime.fromisoformat(as_of) if as_of else datetime.now(UTC),
+            base_month=base_month, current_month=current_month,
+            mapping_version=mapping_version, store=store,
+        )
+        write_private_text(output, document)
+    except (ValueError, OSError, SQLAlchemyError) as exc:
+        raise typer.BadParameter(
+            "Marts rejected; check parameters, mapping and output path"
+        ) from exc
+    typer.echo("Private marts exported; monetary values are preserved as PostgreSQL numerics.")
