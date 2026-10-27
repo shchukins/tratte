@@ -229,18 +229,21 @@ def test_postgres_exclusion_reasons_currencies_zero_returns_and_scope(pg_marts):
     assert not any(p["passes_pair_threshold"] for p in filtered["product_monthly"])
 
 
-def test_postgres_validation_fails_closed_and_read_only_snapshot(pg_marts, monkeypatch):
+@pytest.mark.parametrize("decomposition", [False, True])
+def test_postgres_validation_fails_closed_and_read_only_snapshot(
+    pg_marts, monkeypatch, decomposition,
+):
     engine, _ = pg_marts
     with Session(engine) as session:
         item = add(session)
         version = mapping(session, [item])
         session.commit()
         with pytest.raises(ValueError, match="Unknown"):
-            report(engine, mapping_version="0" * 64)
+            report(engine, decomposition=decomposition, mapping_version="0" * 64)
         item.total = 101
         session.commit()
     with pytest.raises(ValueError, match="Stale"):
-        report(engine, mapping_version=version)
+        report(engine, decomposition=decomposition, mapping_version=version)
     from app.services import analytical_marts
 
     def validate(session, version):
@@ -254,8 +257,8 @@ def test_postgres_validation_fails_closed_and_read_only_snapshot(pg_marts, monke
         assert session.scalar(text("SELECT count(*) FROM receipts")) == before
 
     monkeypatch.setattr(analytical_marts, "validate_version", validate)
-    result = report(engine, mapping_version=version)
-    assert result["overview"]["observed_receipts"] == 1
+    result = report(engine, decomposition=decomposition, mapping_version=version)
+    assert sum(r["receipt_count"] for r in result["receipt_monthly"]) == 1
 
 
 def test_postgres_reinstall_rollback_permissions_and_null_reconciliation(pg_marts):

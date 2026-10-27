@@ -8,6 +8,8 @@
 - `CONTRACT.md` — периоды, знаменатели, исключения и требования к наблюдениям;
 - `ADR-001-analytical-identity.md` — минимальная схема для следующего issue #3;
 - `IDENTITY.md` — реализованный контракт #3, CLI ручной проверки, миграция и откат;
+- `DECOMPOSITION.md` — контракт #5: факторы, мост, сценарий и CLI `analytics decompose`;
+- `sql/decomposition_v1.sql` — параметризованный SQL факторов внутри валидированного снимка;
 - `MARTS.md` — контракт #4: grains, поля, знаменатели, CLI, установка и права BI;
 - `sql/views_v1.sql` — обычные безопасные PostgreSQL views;
 - `sql/comparison_v1.sql` — параметризованный расчёт с обязательным validate gate;

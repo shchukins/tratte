@@ -201,6 +201,9 @@ docker compose exec -T db pg_dump -U tratte -d tratte -Fc > tratte-backup.dump
 Файл дампа храните вне системного диска сервера. Восстановление проверяйте на
 отдельной тестовой БД; не выполняйте его поверх рабочей БД без свежей копии.
 
+Факторный анализ цены/количества, мост расходов и сценарий прежних цен:
+[analytics/DECOMPOSITION.md](analytics/DECOMPOSITION.md), команда `app analytics decompose`.
+
 SQL-слой аналитики чеков, позиций и качества: [analytics/MARTS.md](analytics/MARTS.md).
 Миграция `0004_analytical_marts` добавляет четыре PostgreSQL views. Команда
 `app analytics marts` рассчитывает приватный срез с проверкой выбранного mapping;

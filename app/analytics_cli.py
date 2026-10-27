@@ -127,3 +127,24 @@ def marts(
             "Marts rejected; check parameters, mapping and output path"
         ) from exc
     typer.echo("Private marts exported; monetary values are preserved as PostgreSQL numerics.")
+
+
+@cli.command("decompose")
+def decompose(
+    output: Path, mapping_version: str | None = None, as_of: str | None = None,
+    base_month: str | None = None, current_month: str | None = None,
+    store: str | None = None, category: str | None = None,
+):
+    """Export an accounting bridge and previous-price scenario in one validated snapshot."""
+    try:
+        document = calculate(
+            engine, as_of=datetime.fromisoformat(as_of) if as_of else datetime.now(UTC),
+            base_month=base_month, current_month=current_month, mapping_version=mapping_version,
+            store=store, category=category, decomposition=True,
+        )
+        write_private_text(output, document)
+    except (ValueError, OSError, SQLAlchemyError) as exc:
+        raise typer.BadParameter(
+            "Decomposition rejected; check parameters, mapping and output path"
+        ) from exc
+    typer.echo("Private accounting decomposition exported.")

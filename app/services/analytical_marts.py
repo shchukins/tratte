@@ -18,13 +18,15 @@ def sql_file(name: str) -> str:
 def calculate(
     engine: Engine, *, as_of: datetime, base_month: str | None = None,
     current_month: str | None = None, mapping_version: str | None = None,
-    store: str | None = None,
+    store: str | None = None, category: str | None = None, decomposition: bool = False,
 ) -> str:
     """Return private JSON text, preserving PostgreSQL numeric precision.
 
     No mapping means descriptive-only data. An explicit stale/unknown mapping
     fails the whole calculation; it never silently degrades to unmatched.
     """
+    if category is not None and not decomposition:
+        raise ValueError("Category scope requires decomposition")
     params = parameters(as_of.isoformat(), "Europe/Moscow", base_month, current_month)
     if engine.dialect.name != "postgresql":
         raise ValueError("Analytical marts require PostgreSQL")
@@ -41,4 +43,11 @@ def calculate(
             with Session(bind=connection) as session:
                 if mapping_version is not None:
                     validate_version(session, mapping_version)
-                return session.scalar(text(query), params)
+                document = session.scalar(text(query), params)
+                if not decomposition:
+                    return document
+                factor_sql = sql_file("decomposition_v1.sql")
+                return session.scalar(text(factor_sql), {
+                    "document": document, "category": category,
+                    "decomposition_sha256": sha256(factor_sql.encode()).hexdigest(),
+                })
