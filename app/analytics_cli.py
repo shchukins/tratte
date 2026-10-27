@@ -148,3 +148,34 @@ def decompose(
             "Decomposition rejected; check parameters, mapping and output path"
         ) from exc
     typer.echo("Private accounting decomposition exported.")
+
+
+@cli.command("dashboard-publish")
+def dashboard_publish(
+    mapping_version: str | None = None, as_of: str | None = None,
+    base_month: str | None = None, current_month: str | None = None,
+    store: str | None = None, category: str | None = None,
+):
+    """Publish an immutable scope in a separate BI database; no scheduler."""
+    from sqlalchemy import create_engine
+
+    from app.services.analytical_dashboard import publish
+
+    destination_url = os.environ.get("TRATTE_BI_DATABASE_URL")
+    if not destination_url:
+        raise typer.BadParameter("Set private TRATTE_BI_DATABASE_URL for the BI writer")
+    destination = create_engine(destination_url)
+    try:
+        snapshot_id = publish(
+            engine, destination,
+            as_of=datetime.fromisoformat(as_of) if as_of else datetime.now(UTC),
+            base_month=base_month, current_month=current_month, mapping_version=mapping_version,
+            store=store, category=category,
+        )
+    except (ValueError, SQLAlchemyError) as exc:
+        raise typer.BadParameter(
+            "Dashboard rejected; check mapping, scope and BI database"
+        ) from exc
+    finally:
+        destination.dispose()
+    typer.echo(f"Published snapshot {snapshot_id}; all dashboard objects share this scope.")

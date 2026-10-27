@@ -93,3 +93,10 @@ TRATTE_AUDIT_TEST_SSH_HOST=human-engine-home \
 `TRATTE_AUDIT_TEST_DSN` включает SQL-тесты. Локально без DSN/SSH эти два теста
 пропускаются явно. PostgreSQL-тесты затеняют реальные таблицы CTE-фикстурами и не
 создают таблиц даже при использовании существующего read-only соединения.
+
+## Внутренний Superset — issue #6
+
+[Дашборды, импорт, source bindings и доступ](superset/README.md).
+`analytics dashboard-publish` публикует явно проверенный неизменяемый срез в
+отдельную BI БД. В репозитории только синтетический экспорт/скриншоты;
+production-публикация данных и импорт Superset выполняются отдельно.

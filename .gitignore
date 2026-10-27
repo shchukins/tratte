@@ -21,3 +21,7 @@ credentials*.json
 
 # Local model evaluation outputs (may contain private product names)
 .local-evaluations/
+
+# Browser QA traces may include private page data; only reviewed synthetic screenshots are committed.
+.playwright-cli/
+output/playwright/
