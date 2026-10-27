@@ -25,3 +25,5 @@ credentials*.json
 # Browser QA traces may include private page data; only reviewed synthetic screenshots are committed.
 .playwright-cli/
 output/playwright/
+# Rebuilt synthetic snapshots have run-specific metadata; source fixture is versioned.
+output/demo/

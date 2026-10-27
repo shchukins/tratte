@@ -1,0 +1,70 @@
+{
+  "synthetic": true,
+  "base_month": "2026-08-01",
+  "current_month": "2026-09-01",
+  "receipt_totals": [
+    850,
+    1410
+  ],
+  "delta": 560,
+  "bridge": {
+    "price": 100,
+    "quantity": 420,
+    "entry": 70,
+    "exit": -30,
+    "unmatched": 0,
+    "reconciliation": 0,
+    "rounding": 0
+  },
+  "milk": {
+    "amount": [
+      400,
+      780
+    ],
+    "quantity": [
+      8,
+      12
+    ],
+    "price": [
+      50,
+      65
+    ],
+    "delta": 380,
+    "price_effect": 150,
+    "quantity_effect": 230
+  },
+  "rice": {
+    "amount": [
+      400,
+      540
+    ],
+    "quantity": [
+      8,
+      12
+    ],
+    "price": [
+      50,
+      45
+    ],
+    "delta": 140,
+    "price_effect": -50,
+    "quantity_effect": 190
+  },
+  "comparable_amount": [
+    800,
+    1320
+  ],
+  "positive_amount": [
+    850,
+    1410
+  ],
+  "unmatched_amount": [
+    20,
+    20
+  ],
+  "excluded_amount": [
+    10,
+    10
+  ],
+  "observations_per_product": 8
+}

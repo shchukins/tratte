@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="assets/case/favicon.svg" type="image/svg+xml" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tratte — synthetic demo</title>
+    <link rel="stylesheet" href="assets/case/style.css" />
+    <script defer src="assets/case/demo.js"></script>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <a href="case.html">← Кейс Tratte</a
+        ><span class="badge">Только синтетические данные · seed 20261027</span>
+      </nav>
+    </header>
+    <main>
+      <div class="tag">
+        Интерактивная иллюстрация fixture / не интерфейс Superset
+      </div>
+      <h1>Почему расходы выросли?</h1>
+      <p class="lead">
+        Август → сентябрь 2026 · synthetic-a + synthetic-b · RUB · Москва
+      </p>
+      <div class="grid">
+        <div class="card">
+          <div class="tag">Август</div>
+          <div class="number" id="base">850 ₽</div>
+        </div>
+        <div class="card">
+          <div class="tag">Сентябрь</div>
+          <div class="number" id="current">1 410 ₽</div>
+        </div>
+        <div class="card">
+          <div class="tag">Изменение</div>
+          <div class="number up">+560 ₽ / +65,9%</div>
+        </div>
+      </div>
+      <p id="status" role="status">Загрузка синтетической fixture…</p>
+      <section id="bridge-section">
+        <div class="tag">01 / Отклонение</div>
+        <h2>Мост изменения расходов</h2>
+        <div id="bridge" class="bridge"></div>
+        <p class="caption">
+          Длины полос показывают отдельные вклады, не накопленные суммы. Все
+          компоненты сверяются до копейки.
+        </p>
+        <div class="actions">
+          <button id="price-button" type="button" aria-pressed="false">
+            Разобрать фактор цены +100 ₽</button
+          ><button id="quantity-button" type="button" aria-pressed="false">
+            Разобрать количество +420 ₽
+          </button>
+        </div>
+        <p class="callout" id="factor-explanation">
+          Выберите фактор, чтобы увидеть вклад каждого сопоставимого товара.
+        </p>
+      </section>
+      <section id="product-section">
+        <div class="tag">02 / Товар</div>
+        <h2>От вклада к наблюдениям</h2>
+        <div class="actions">
+          <button id="milk-button" type="button" aria-pressed="true">
+            Молоко 1 л · +380 ₽</button
+          ><button id="rice-button" type="button" aria-pressed="false">
+            Рис 1 кг · +140 ₽
+          </button>
+        </div>
+        <div id="product-summary" class="callout"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Строка fixture</th>
+                <th>Дата</th>
+                <th>Магазин</th>
+                <th>Количество</th>
+                <th>Цена за единицу</th>
+                <th>Сумма</th>
+              </tr>
+            </thead>
+            <tbody id="observations"></tbody>
+          </table>
+        </div>
+        <p class="caption">
+          Каждая строка — отдельный вымышленный чек. Имена товаров явно
+          synthetic; упаковки 1 л и 1 кг подтверждены в demo mapping.
+        </p>
+      </section>
+      <section id="quality-section">
+        <div class="tag">03 / Проверка источника</div>
+        <h2>Что осталось вне сопоставления</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Август · 94,1%</h3>
+            <p>
+              800 / 850 ₽ сопоставимы.<br />30 ₽ — ушедший товар.<br />20 ₽ —
+              неоднозначная смесь.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Сентябрь · 93,6%</h3>
+            <p>
+              1 320 / 1 410 ₽ сопоставимы.<br />70 ₽ — новый товар.<br />20 ₽ —
+              неоднозначная смесь.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Исключения и свежесть</h3>
+            <p>
+              Неизвестная операция: 10 ₽ в каждом месяце. Сверка: 0 ₽. Gmail
+              sync: N/A, источник создан генератором.
+            </p>
+          </article>
+        </div>
+        <div class="actions">
+          <button id="july-button" type="button" aria-expanded="false">
+            Проверить неполный июль</button
+          ><a href="assets/case/data.json" download>Скачать fixture JSON</a>
+        </div>
+        <p id="july" class="callout" hidden>
+          Июль: один чек без итога, неизвестная упаковка. Полный итог и полный
+          мост: N/A / insufficient_data. Известную сумму нельзя выдавать за
+          полный расход.
+        </p>
+        <p class="caption">
+          Новые и ушедшие товары не входят в числитель охвата сопоставимых.
+          Несопоставимые строки не становятся инфляцией. Вся fixture содержит
+          июль, август и сентябрь; общий сюжет всегда сравнивает август с
+          сентябрём.
+        </p>
+      </section>
+      <section class="rule">
+        <p>
+          <a href="case.html">Вернуться к кейсу</a> ·
+          <a href="https://github.com/shchukins/tratte/tree/main/analytics/demo"
+            >Контрольные итоги, SQL и запуск PostgreSQL/Superset</a
+          >
+        </p>
+      </section>
+    </main>
+    <footer>
+      Публичное demo работает без Gmail, токенов и базы данных. Факторы —
+      иллюстрация проверенного synthetic расчёта.
+    </footer>
+  </body>
+</html>
