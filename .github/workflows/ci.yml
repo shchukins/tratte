@@ -41,6 +41,12 @@ jobs:
       - run: python -m pip install -e ".[dev]"
       - run: ruff check .
       - run: python -m pytest
+      - name: Replay synthetic case from empty database to BI snapshot
+        env:
+          TRATTE_DEMO_DATABASE_URL: postgresql+psycopg://audit:audit@localhost:5432/public_demo
+        run: |
+          python -c "import psycopg; c = psycopg.connect('postgresql://audit:audit@localhost:5432/audit', autocommit=True); c.execute('CREATE DATABASE public_demo'); c.close()"
+          python -m analytics.demo.postgres
 
   promote:
     if: github.event_name == 'push'

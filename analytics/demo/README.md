@@ -61,6 +61,11 @@ python -m analytics.demo.postgres
 `output/demo/superset.zip`. Метаданные времени/версии mapping/snapshot меняются
 между запусками; записи fixture и контрольная арифметика остаются одинаковыми.
 
+Та же команда проверяет `insufficient_data` для неполного июля и повторно
+сверяет сохранённый BI snapshot с oracle. CI выполняет полный запуск в отдельной
+пустой БД после pytest, до продвижения коммита в `deploy`.
+[Единая приёмка сквозного кейса #8](../CASE.md).
+
 Для визуального запуска потребуется отдельный Superset **6.1.0**, его metadata DB
 и настройка reader-соединения. [Инструкция импорта и прав](../superset/README.md).
 В ZIP URI всегда placeholder, не рабочее подключение. Для Superset в Docker адрес

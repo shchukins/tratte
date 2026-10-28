@@ -1,6 +1,7 @@
 """The public example must reproduce its independent oracle through real SQL."""
 
 import json
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -8,7 +9,7 @@ from test_analytical_marts import pg_marts as pg_marts
 
 from analytics.demo.build import TARGET, dataset
 from analytics.demo.load import seed
-from analytics.demo.validate import check_report
+from analytics.demo.validate import EXPECTED, check_report
 from analytics.superset.demo import AS_OF
 from app.services.analytical_marts import calculate
 
@@ -30,6 +31,16 @@ def test_public_fixture_matches_oracle_through_production_sql(pg_marts):
     version = seed(engine)
     report = json.loads(calculate(engine, as_of=AS_OF, mapping_version=version, dashboard=True))
     check_report(report)
+    for component in EXPECTED["bridge"]:
+        key = {"entry": "current_only", "exit": "base_only"}.get(component, component)
+        broken = deepcopy(report)
+        broken["bridge"] = [r for r in broken["bridge"] if r["component"] != key]
+        with pytest.raises(ValueError, match="oracle mismatch"):
+            check_report(broken)
+    duplicated = deepcopy(report)
+    duplicated["bridge"].append(deepcopy(report["bridge"][0]))
+    with pytest.raises(ValueError, match="oracle mismatch"):
+        check_report(duplicated)
     milk = next(r for r in report["products"] if r["product_id"] == "demo-milk-1l")
     milk["price_effect"] += 1
     with pytest.raises(ValueError, match="oracle mismatch"):

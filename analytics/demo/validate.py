@@ -8,7 +8,15 @@ EXPECTED = json.loads(Path(__file__).with_name("expected.json").read_text())
 
 def check_report(report):
     """Reject any SQL result that disagrees with the frozen arithmetic examples."""
+    aliases = {"current_only": "entry", "base_only": "exit"}
+    components = [aliases.get(row["component"], row["component"]) for row in report["bridge"]]
+    if len(components) != len(EXPECTED["bridge"]) or set(components) != set(EXPECTED["bridge"]):
+        raise ValueError(
+            "Synthetic oracle mismatch: missing, duplicate or unexpected bridge component"
+        )
     checks = {
+        "bridge_status": (report["bridge_status"], "available"),
+        "bridge_sum": (sum(row["amount_rounded"] for row in report["bridge"]), EXPECTED["delta"]),
         "totals": ([r["recorded_receipt_amount"] for r in report["receipt_monthly"]
                     if r["operation"] == "purchase" and r["currency"] == "RUB"],
                    EXPECTED["receipt_totals"]),
@@ -22,8 +30,7 @@ def check_report(report):
                       if r["operation"] == "unknown"], EXPECTED["excluded_amount"]),
     }
     for row in report["bridge"]:
-        key = {"current_only": "entry", "base_only": "exit"}.get(row["component"],
-                                                                  row["component"])
+        key = aliases.get(row["component"], row["component"])
         checks[f"bridge/{key}"] = row["amount_rounded"], EXPECTED["bridge"][key]
     for key, product in (("milk", "demo-milk-1l"), ("rice", "demo-rice-1kg")):
         row = next(r for r in report["products"] if r["product_id"] == product)
